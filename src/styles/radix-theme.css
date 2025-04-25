@@ -1,0 +1,70 @@
+@import '@radix-ui/colors/slate.css';
+@import '@radix-ui/colors/slate-alpha.css';
+@import '@radix-ui/colors/blue.css';
+@import '@radix-ui/colors/blue-alpha.css';
+@import '@radix-ui/colors/green.css';
+@import '@radix-ui/colors/green-alpha.css';
+@import '@radix-ui/colors/red.css';
+@import '@radix-ui/colors/red-alpha.css';
+@import '@radix-ui/colors/amber.css';
+@import '@radix-ui/colors/amber-alpha.css';
+
+:root {
+  /* Base colors */
+  --color-background: var(--slate-1);
+  --color-foreground: var(--slate-12);
+  
+  /* UI Component colors */
+  --color-primary: var(--blue-9);
+  --color-primary-hover: var(--blue-10);
+  --color-primary-active: var(--blue-11);
+  
+  --color-success: var(--green-9);
+  --color-warning: var(--amber-9);
+  --color-error: var(--red-9);
+  
+  /* Border colors */
+  --color-border: var(--slate-7);
+  --color-border-hover: var(--slate-8);
+  
+  /* Text colors */
+  --color-text-primary: var(--slate-12);
+  --color-text-secondary: var(--slate-11);
+  --color-text-tertiary: var(--slate-10);
+  --color-text-disabled: var(--slate-8);
+  
+  /* Priority colors */
+  --color-priority-high-bg: var(--red-3);
+  --color-priority-high-text: var(--red-11);
+  --color-priority-medium-bg: var(--amber-3);
+  --color-priority-medium-text: var(--amber-11);
+  --color-priority-low-bg: var(--green-3);
+  --color-priority-low-text: var(--green-11);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  
+  /* Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+  
+  /* Animation */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
