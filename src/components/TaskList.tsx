@@ -6,20 +6,31 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Toast from '@radix-ui/react-toast';
-import { CheckIcon, Cross2Icon, Pencil1Icon, DotsVerticalIcon, CalendarIcon, ExclamationTriangleIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { CheckIcon, Cross2Icon, Pencil1Icon, DotsVerticalIcon, CalendarIcon, ExclamationTriangleIcon, UpdateIcon, PlusIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import { fetchTasks, updateTask, deleteTask, Task } from '@/utils/api';
 
-export default function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+interface TaskListProps {
+  initialTasks?: Task[];
+}
+
+export default function TaskList({ initialTasks }: TaskListProps) {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks || []);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialTasks);
   const [error, setError] = useState<string | null>(null);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   
-  // Fetch tasks from the API
+  // Fetch tasks from the API if initialTasks is not provided
   useEffect(() => {
+    if (initialTasks) {
+      // If initialTasks is provided, use it directly
+      setTasks(initialTasks);
+      setLoading(false);
+      return;
+    }
+    
     const getTasks = async () => {
       try {
         setLoading(true);
@@ -35,7 +46,7 @@ export default function TaskList() {
     };
     
     getTasks();
-  }, []);
+  }, [initialTasks]);
   
   const handleToggleComplete = async (taskId: string) => {
     try {
@@ -76,26 +87,26 @@ export default function TaskList() {
     switch (priority) {
       case 'high': 
         return { 
-          bg: 'var(--color-priority-high-bg)', 
-          text: 'var(--color-priority-high-text)',
+          bg: '#FEE2E2', // red-100 
+          text: '#DC2626', // red-600
           icon: <ExclamationTriangleIcon className="h-3 w-3 mr-1" />
         };
       case 'medium': 
         return { 
-          bg: 'var(--color-priority-medium-bg)', 
-          text: 'var(--color-priority-medium-text)',
+          bg: '#FEF3C7', // amber-100 
+          text: '#D97706', // amber-600
           icon: null
         };
       case 'low': 
         return { 
-          bg: 'var(--color-priority-low-bg)', 
-          text: 'var(--color-priority-low-text)',
+          bg: '#DBEAFE', // blue-100 
+          text: '#2563EB', // blue-600
           icon: null
         };
       default: 
         return { 
-          bg: 'var(--slate-3)', 
-          text: 'var(--slate-11)',
+          bg: '#F3F4F6', // gray-100 
+          text: '#4B5563', // gray-600
           icon: null
         };
     }
@@ -111,28 +122,29 @@ export default function TaskList() {
   return (
     <Toast.Provider swipeDirection="right">
       <Tooltip.Provider>
-        <div className="radix-card">
-          <div className="p-4 border-b border-slate-6 flex justify-between items-center">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="p-5 border-b border-blue-100 flex justify-between items-center">
             <div>
-              <h2 className="text-lg font-medium">Your Tasks</h2>
-              <p className="text-sm text-slate-11">
+              <h2 className="text-xl font-bold text-blue-800">Your Tasks</h2>
+              <p className="text-sm text-blue-600">
                 {loading ? 'Loading tasks...' : `${tasks.length} tasks, ${tasks.filter(t => t.completed).length} completed`}
               </p>
             </div>
             <Link 
               href="/tasks/new" 
-              className="radix-button radix-button-primary"
+              className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm transition-all flex items-center shadow-sm hover:shadow"
             >
+              <CheckIcon className="mr-2 h-4 w-4" />
               Add Task
             </Link>
           </div>
           
           {error && (
-            <div className="p-4 bg-red-3 text-red-11 text-sm">
+            <div className="p-4 bg-red-50 text-red-700 text-sm border-l-4 border-red-500 m-4 rounded">
               {error}
               <button 
                 onClick={() => window.location.reload()} 
-                className="ml-2 underline"
+                className="ml-2 text-blue-600 hover:text-blue-800 underline"
               >
                 Retry
               </button>
@@ -140,23 +152,23 @@ export default function TaskList() {
           )}
           
           {loading ? (
-            <div className="p-8 text-center text-slate-10 flex flex-col items-center">
-              <UpdateIcon className="h-5 w-5 animate-spin mb-2" />
-              Loading tasks...
+            <div className="p-8 text-center text-blue-600 flex flex-col items-center">
+              <div className="h-10 w-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+              Loading your tasks...
             </div>
           ) : (
-            <ul className="divide-y divide-slate-6">
+            <ul className="divide-y divide-gray-100">
               {tasks.length > 0 ? (
                 tasks.map(task => {
                   const priorityStyle = getPriorityStyles(task.priority);
                   const overdue = isOverdue(task.dueDate) && !task.completed;
                   
                   return (
-                    <li key={task._id} className="p-4 hover:bg-slate-2 transition-colors">
+                    <li key={task._id} className="p-5 hover:bg-blue-50 transition-colors">
                       <div className="flex items-start gap-3">
                         <div className="pt-0.5">
                           <Checkbox.Root
-                            className="flex h-5 w-5 appearance-none items-center justify-center rounded-md border border-slate-7 bg-white data-[state=checked]:bg-blue-9 data-[state=checked]:border-blue-9"
+                            className="flex h-5 w-5 appearance-none items-center justify-center rounded-md border border-blue-300 bg-white data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 transition-colors hover:border-blue-400"
                             checked={task.completed}
                             onCheckedChange={() => handleToggleComplete(task._id!)}
                             id={`task-${task._id}`}
@@ -171,18 +183,18 @@ export default function TaskList() {
                           <div className="flex items-center justify-between">
                             <Tooltip.Root>
                               <Tooltip.Trigger asChild>
-                                <p className={`text-sm font-medium ${task.completed ? 'line-through text-slate-9' : 'text-slate-12'}`}>
+                                <p className={`text-sm font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
                                   {task.title}
                                 </p>
                               </Tooltip.Trigger>
                               {task.description && (
                                 <Tooltip.Portal>
                                   <Tooltip.Content 
-                                    className="max-w-xs bg-slate-12 text-slate-1 px-3 py-2 rounded-md text-xs"
+                                    className="max-w-xs bg-gray-800 text-white px-3 py-2 rounded-md text-xs shadow-lg"
                                     sideOffset={5}
                                   >
                                     {task.description}
-                                    <Tooltip.Arrow className="fill-slate-12" />
+                                    <Tooltip.Arrow className="fill-gray-800" />
                                   </Tooltip.Content>
                                 </Tooltip.Portal>
                               )}
@@ -193,18 +205,18 @@ export default function TaskList() {
                                 <Tooltip.Trigger asChild>
                                   <Link 
                                     href={`/tasks/${task._id}/edit`}
-                                    className="p-1.5 text-slate-9 hover:text-slate-12 hover:bg-slate-3 rounded-md transition-colors"
+                                    className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-md transition-colors"
                                   >
                                     <Pencil1Icon className="h-4 w-4" />
                                   </Link>
                                 </Tooltip.Trigger>
                                 <Tooltip.Portal>
                                   <Tooltip.Content 
-                                    className="bg-slate-12 text-slate-1 px-2 py-1 rounded-md text-xs"
+                                    className="bg-gray-800 text-white px-2 py-1 rounded-md text-xs shadow-lg"
                                     sideOffset={5}
                                   >
                                     Edit task
-                                    <Tooltip.Arrow className="fill-slate-12" />
+                                    <Tooltip.Arrow className="fill-gray-800" />
                                   </Tooltip.Content>
                                 </Tooltip.Portal>
                               </Tooltip.Root>
@@ -213,39 +225,39 @@ export default function TaskList() {
                                 <Tooltip.Root>
                                   <Tooltip.Trigger asChild>
                                     <DropdownMenu.Trigger asChild>
-                                      <button className="p-1.5 text-slate-9 hover:text-slate-12 hover:bg-slate-3 rounded-md transition-colors">
+                                      <button className="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors">
                                         <DotsVerticalIcon className="h-4 w-4" />
                                       </button>
                                     </DropdownMenu.Trigger>
                                   </Tooltip.Trigger>
                                   <Tooltip.Portal>
                                     <Tooltip.Content 
-                                      className="bg-slate-12 text-slate-1 px-2 py-1 rounded-md text-xs"
+                                      className="bg-gray-800 text-white px-2 py-1 rounded-md text-xs shadow-lg"
                                       sideOffset={5}
                                     >
                                       More options
-                                      <Tooltip.Arrow className="fill-slate-12" />
+                                      <Tooltip.Arrow className="fill-gray-800" />
                                     </Tooltip.Content>
                                   </Tooltip.Portal>
                                 </Tooltip.Root>
                                 
                                 <DropdownMenu.Portal>
                                   <DropdownMenu.Content 
-                                    className="min-w-[180px] bg-white rounded-md p-1 shadow-md border border-slate-6"
+                                    className="min-w-[180px] bg-white rounded-lg p-1 shadow-lg border border-gray-100"
                                     sideOffset={5}
                                   >
                                     <DropdownMenu.Item 
-                                      className="text-sm px-2 py-1.5 rounded-md outline-none cursor-default flex items-center hover:bg-slate-3 text-slate-12"
+                                      className="text-sm px-2 py-1.5 rounded-md outline-none cursor-default flex items-center hover:bg-blue-50 text-gray-700 hover:text-blue-700"
                                       onSelect={() => handleToggleComplete(task._id!)}
                                     >
                                       <CheckIcon className="mr-2 h-4 w-4" />
                                       Mark as {task.completed ? 'incomplete' : 'complete'}
                                     </DropdownMenu.Item>
                                     
-                                    <DropdownMenu.Separator className="h-px bg-slate-6 my-1" />
+                                    <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
                                     
                                     <DropdownMenu.Item 
-                                      className="text-sm px-2 py-1.5 rounded-md outline-none cursor-default flex items-center hover:bg-red-3 text-red-11"
+                                      className="text-sm px-2 py-1.5 rounded-md outline-none cursor-default flex items-center hover:bg-red-50 text-red-600"
                                       onSelect={() => setTaskToDelete(task._id!)}
                                     >
                                       <Cross2Icon className="mr-2 h-4 w-4" />
@@ -259,14 +271,14 @@ export default function TaskList() {
                           
                           <div className="mt-1.5 flex items-center gap-2">
                             <span 
-                              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium" 
+                              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium" 
                               style={{ backgroundColor: priorityStyle.bg, color: priorityStyle.text }}
                             >
                               {priorityStyle.icon}
                               {task.priority}
                             </span>
                             
-                            <span className={`text-xs flex items-center ${overdue ? 'text-red-11' : 'text-slate-10'}`}>
+                            <span className={`text-xs flex items-center ${overdue ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
                               <CalendarIcon className="mr-1 h-3 w-3" />
                               {overdue && '⚠ Overdue: '}
                               {new Date(task.dueDate).toLocaleDateString()}
@@ -278,8 +290,17 @@ export default function TaskList() {
                   );
                 })
               ) : (
-                <li className="p-8 text-center text-slate-10">
-                  No tasks found. Click "Add Task" to create your first task.
+                <li className="p-8 text-center text-gray-500">
+                  <div className="bg-blue-50 rounded-lg p-6 inline-block">
+                    <p className="text-blue-700 mb-4">No tasks found</p>
+                    <Link 
+                      href="/tasks/new"
+                      className="py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm transition-all inline-flex items-center"
+                    >
+                      <PlusIcon className="mr-2 h-4 w-4" />
+                      Add Your First Task
+                    </Link>
+                  </div>
                 </li>
               )}
             </ul>
@@ -290,22 +311,22 @@ export default function TaskList() {
         <AlertDialog.Root open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
           <AlertDialog.Portal>
             <AlertDialog.Overlay className="fixed inset-0 bg-black/50" />
-            <AlertDialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg max-w-md w-[90vw]">
-              <AlertDialog.Title className="text-lg font-semibold text-slate-12 mb-2">
+            <AlertDialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-xl shadow-xl max-w-md w-[90vw]">
+              <AlertDialog.Title className="text-xl font-bold text-gray-800 mb-2">
                 Delete Task
               </AlertDialog.Title>
-              <AlertDialog.Description className="text-slate-11 mb-5">
+              <AlertDialog.Description className="text-gray-600 mb-5">
                 Are you sure you want to delete this task? This action cannot be undone.
               </AlertDialog.Description>
               <div className="flex justify-end gap-3">
                 <AlertDialog.Cancel asChild>
-                  <button className="px-4 py-2 rounded-md text-slate-12 bg-slate-3 hover:bg-slate-4 transition-colors">
+                  <button className="px-4 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors font-medium">
                     Cancel
                   </button>
                 </AlertDialog.Cancel>
                 <AlertDialog.Action asChild>
                   <button 
-                    className="px-4 py-2 rounded-md bg-red-9 text-white hover:bg-red-10 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors font-medium shadow-sm"
                     onClick={() => taskToDelete && handleDeleteTask(taskToDelete)}
                   >
                     Delete
@@ -320,15 +341,15 @@ export default function TaskList() {
         <Toast.Root 
           open={toastOpen} 
           onOpenChange={setToastOpen}
-          className="bg-white border border-slate-6 rounded-lg shadow-lg p-4 flex items-center gap-3 fixed bottom-4 right-4 w-auto max-w-sm z-50"
+          className="bg-white border border-gray-100 rounded-xl shadow-xl p-4 flex items-center gap-3 fixed bottom-4 right-4 w-auto max-w-sm z-50"
         >
-          <div className="w-6 h-6 rounded-full bg-green-5 flex items-center justify-center flex-shrink-0">
-            <CheckIcon className="h-4 w-4 text-green-11" />
+          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+            <CheckIcon className="h-5 w-5 text-green-600" />
           </div>
-          <Toast.Title className="text-sm font-medium text-slate-12">
+          <Toast.Title className="text-sm font-medium text-gray-800">
             {toastMessage}
           </Toast.Title>
-          <Toast.Close className="absolute top-2 right-2 p-1 rounded-md text-slate-11 hover:bg-slate-3 hover:text-slate-12">
+          <Toast.Close className="absolute top-2 right-2 p-1 rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600">
             <Cross2Icon className="h-4 w-4" />
           </Toast.Close>
         </Toast.Root>

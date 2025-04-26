@@ -7,6 +7,7 @@ import * as Toast from '@radix-ui/react-toast';
 import * as Switch from '@radix-ui/react-switch';
 import { CheckIcon, ChevronDownIcon, CalendarIcon, ExclamationTriangleIcon, BellIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
+import { createTask, updateTask } from '@/utils/api';
 
 interface TaskFormProps {
   taskId?: string;
@@ -56,7 +57,7 @@ export default function TaskForm({ taskId, initialData }: TaskFormProps) {
     setFormData(prev => ({ ...prev, hasReminder: checked }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
@@ -72,17 +73,38 @@ export default function TaskForm({ taskId, initialData }: TaskFormProps) {
     
     if (!isValid) return;
     
-    // In a real app, we would save to API here
-    console.log('Submitting task:', formData);
-    
-    // Show success toast
-    setToastMessage(isEditing ? 'Task updated successfully!' : 'Task created successfully!');
-    setToastOpen(true);
-    
-    // Redirect after a short delay
-    setTimeout(() => {
-      router.push('/tasks');
-    }, 1500);
+    try {
+      // Prepare task data for API
+      const taskData = {
+        title: formData.title,
+        description: formData.description,
+        priority: formData.priority,
+        dueDate: formData.dueDate,
+        hasReminder: formData.hasReminder,
+        completed: false
+      };
+      
+      if (isEditing && taskId) {
+        // Update existing task
+        await updateTask(taskId, taskData);
+      } else {
+        // Create new task
+        await createTask(taskData);
+      }
+      
+      // Show success toast
+      setToastMessage(isEditing ? 'Task updated successfully!' : 'Task created successfully!');
+      setToastOpen(true);
+      
+      // Redirect after a short delay
+      setTimeout(() => {
+        router.push('/tasks');
+      }, 1500);
+    } catch (error) {
+      console.error('Error saving task:', error);
+      setToastMessage('Failed to save task. Please try again.');
+      setToastOpen(true);
+    }
   };
 
   const getPriorityStyles = (priority: string) => {
